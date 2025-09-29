@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Image Tools — Elegant</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#0f172a; /* deep navy */
+      --bg2:#0ea5a4; /* teal */
+      --card:#ffffff;
+      --muted:#94a3b8;
+      --glass: rgba(255,255,255,0.06);
+      --accent:#0ea5a4;
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:#0f172a;
+      background: radial-gradient(1000px 600px at 10% 10%, rgba(14,165,164,0.08), transparent),
+                  radial-gradient(800px 500px at 90% 90%, rgba(14,165,164,0.06), transparent),
+                  linear-gradient(180deg,var(--bg1) 0%, #071029 100%);
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+      padding:28px;
+    }
+
+    .app{
+      max-width:1080px;margin:0 auto;background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border-radius:24px;padding:28px;box-shadow:0 12px 40px rgba(2,6,23,0.6);
+      backdrop-filter: blur(6px);
+    }
+
+    header{display:flex;align-items:center;gap:18px}
+    .brand{width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#06b6d4);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:20px;box-shadow:0 6px 22px rgba(4,12,30,0.6)}
+    h1{margin:0;color:white;font-size:20px}
+    p.lead{margin:4px 0 0;color:var(--muted);font-size:13px}
+
+    .grid{display:grid;grid-template-columns:1fr;gap:18px;margin-top:22px}
+    @media(min-width:980px){.grid{grid-template-columns:320px 1fr 360px}}
+
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:var(--radius);padding:18px;border:1px solid rgba(255,255,255,0.04);box-shadow:0 8px 28px rgba(2,6,23,0.45)}
+
+    .upload-area{border:1px dashed rgba(255,255,255,0.06);border-radius:12px;padding:14px;text-align:center;min-height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.01))}
+    .upload-area:hover{transform:translateY(-3px);transition:all .18s}
+
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:linear-gradient(90deg,var(--accent),#06b6d4);color:white;text-decoration:none;font-weight:700;border:none;cursor:pointer}
+    .btn.secondary{background:transparent;border:1px solid rgba(255,255,255,0.06);color:white;font-weight:600}
+
+    img.preview{max-height:200px;object-fit:contain;border-radius:12px;margin-top:12px;box-shadow:0 10px 30px rgba(2,6,23,0.5)}
+    label.small{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+
+    input[type=text],select,input[type=number],input[type=range]{width:100%;padding:10px;border-radius:10px;border:none;background:rgba(255,255,255,0.03);color:#e6eef5}
+    select{appearance:none;padding-right:24px}
+    .row{display:flex;gap:12px}
+    .row .col{flex:1}
+
+    .presets{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px}
+    .chip{padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.04);font-size:13px;color:#e6eef5;cursor:pointer;background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent)}
+    .chip:hover{transform:translateY(-4px);transition:all .14s}
+
+    .controls{display:flex;gap:12px;align-items:center;margin-top:12px}
+    .muted{color:var(--muted);font-size:13px}
+
+    .footer{display:flex;justify-content:space-between;align-items:center;margin-top:18px;color:var(--muted);font-size:13px}
+
+    /* spacing tweak for better layout */
+    .form-group{margin-top:12px}
+    .compact{padding:8px}
+
+    /* accessibility focus */
+    .chip:focus,.btn:focus{outline:2px solid rgba(14,165,164,0.24);outline-offset:2px}
+
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <div class="brand">IT</div>
+      <div>
+        <h1>Image Tools — Elegant</h1>
+        <p class="lead">Upload · Resize · Convert · Download — modern UI, perfect spacing & great background</p>
+      </div>
+    </header>
+
+    <main class="grid">
+      <!-- left: upload -->
+      <section class="card">
+        <label class="small">Upload Image</label>
+        <div id="drop" class="upload-area" tabindex="0">
+          <div style="max-width:100%">
+            <div class="muted">Drag & drop an image here or</div>
+            <div style="margin-top:12px">
+              <input id="fileInput" type="file" accept="image/*" style="display:none" />
+              <button id="chooseBtn" class="btn">Choose Image</button>
+            </div>
+            <div id="meta" class="muted" style="margin-top:12px"></div>
+            <img id="preview" class="preview" style="display:none" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="small">Presets</label>
+          <div class="presets" id="presets">
+            <div class="chip" data-w="1080" data-h="1080">Instagram 1080×1080</div>
+            <div class="chip" data-w="1080" data-h="1920">Story 1080×1920</div>
+            <div class="chip" data-w="1280" data-h="720">YouTube 1280×720</div>
+            <div class="chip" data-w="820" data-h="312">FB Cover 820×312</div>
+            <div class="chip" data-w="720" data-h="1280">Mobile 720×1280</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- center: resize -->
+      <section class="card">
+        <label class="small">Resize & Download</label>
+        <div class="muted" style="margin-top:6px">If <strong>Keep aspect</strong> is on, leaving one field blank auto-calculates the other.</div>
+
+        <div class="form-group row">
+          <div class="col">
+            <label class="small">Width (px)</label>
+            <input id="width" type="number" placeholder="auto" />
+          </div>
+          <div class="col">
+            <label class="small">Height (px)</label>
+            <input id="height" type="number" placeholder="auto" />
+          </div>
+        </div>
+
+        <div class="form-group row" style="align-items:center">
+          <div style="display:flex;gap:10px;align-items:center"><input id="keep" type="checkbox" checked /> <div class="muted">Keep aspect</div></div>
+          <div style="width:220px">
+            <label class="small">Format</label>
+            <select id="format"><option value="image/jpeg">JPEG</option><option value="image/png">PNG</option><option value="image/webp">WebP</option></select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="small">Quality (JPEG/WebP)</label>
+          <input id="quality" type="range" min="0.1" max="1" step="0.05" value="0.92" />
+          <div class="muted" id="qVal">0.92</div>
+        </div>
+
+        <div class="controls">
+          <button id="downloadBtn" class="btn">Resize & Download</button>
+          <button id="previewBtn" class="btn secondary">Preview</button>
+          <div style="flex:1"></div>
+          <div class="muted">Original size: <span id="origSize">—</span></div>
+        </div>
+
+        <canvas id="canvas" style="display:none"></canvas>
+      </section>
+
+      <!-- right: converter + info -->
+      <section class="card">
+        <label class="small">Size Converter</label>
+        <div class="muted" style="margin-top:6px">Convert between B, KB, MB, GB (binary base 1024)</div>
+
+        <div class="form-group row">
+          <input id="amount" type="text" placeholder="e.g. 1500" />
+          <select id="from"><option>KB</option><option>MB</option><option>GB</option><option>B</option></select>
+        </div>
+        <div class="form-group row">
+          <select id="to"><option>MB</option><option>KB</option><option>GB</option><option>B</option></select>
+          <button id="conv" class="btn">Convert</button>
+        </div>
+        <div id="convResult" class="muted" style="margin-top:10px"></div>
+
+        <div style="margin-top:18px">
+          <label class="small">Tips</label>
+          <ul class="muted" style="margin-top:8px;line-height:1.6">
+            <li>Use WebP for best size-to-quality ratio.</li>
+            <li>PNG for logos/transparent images (lossless).</li>
+            <li>Keep width under 1280px for faster pages on mobile.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <div class="footer">
+      <div id="status" class="muted">Ready</div>
+      <div class="muted">Made with ❤️ — spaced & stylish</div>
+    </div>
+
+  </div>
+
+<script>
+  // (keeps same functionality but hooks into new UI)
+  const fileInput = document.getElementById('fileInput');
+  const chooseBtn = document.getElementById('chooseBtn');
+  const drop = document.getElementById('drop');
+  const preview = document.getElementById('preview');
+  const meta = document.getElementById('meta');
+  const widthInput = document.getElementById('width');
+  const heightInput = document.getElementById('height');
+  const keep = document.getElementById('keep');
+  const format = document.getElementById('format');
+  const quality = document.getElementById('quality');
+  const qVal = document.getElementById('qVal');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const previewBtn = document.getElementById('previewBtn');
+  const canvas = document.getElementById('canvas');
+  const status = document.getElementById('status');
+  const amount = document.getElementById('amount');
+  const from = document.getElementById('from');
+  const to = document.getElementById('to');
+  const conv = document.getElementById('conv');
+  const convResult = document.getElementById('convResult');
+  const origSize = document.getElementById('origSize');
+
+  let currentFile = null;
+  let currentUrl = null;
+
+  chooseBtn.onclick = ()=> fileInput.click();
+  fileInput.onchange = (e)=> handleFile(e.target.files[0]);
+
+  drop.addEventListener('dragover',e=>{e.preventDefault(); drop.style.boxShadow='0 10px 40px rgba(14,165,164,0.06)';});
+  drop.addEventListener('dragleave',e=>{drop.style.boxShadow='none';});
+  drop.addEventListener('drop',e=>{e.preventDefault(); drop.style.boxShadow='none'; const f=e.dataTransfer.files[0]; if(f) handleFile(f)});
+
+  function handleFile(f){
+    if(!f) return;
+    if(!f.type.startsWith('image/')){status.textContent='Please upload an image file.'; return}
+    currentFile = f;
+    if(currentUrl) URL.revokeObjectURL(currentUrl);
+    currentUrl = URL.createObjectURL(f);
+    preview.src = currentUrl; preview.style.display='block';
+    meta.textContent = `${f.name} • ${humanFileSize(f.size)}`;
+    origSize.textContent = humanFileSize(f.size);
+    preview.onload = ()=>{
+      widthInput.value = preview.naturalWidth;
+      heightInput.value = preview.naturalHeight;
+    }
+    status.textContent='Image loaded.'
+  }
+
+  document.getElementById('presets').addEventListener('click', (e)=>{
+    const chip = e.target.closest('.chip'); if(!chip) return;
+    widthInput.value = chip.dataset.w; heightInput.value = chip.dataset.h; keep.checked=false;
+  });
+
+  quality.oninput = ()=>{ qVal.textContent = Number(quality.value).toFixed(2); }
+
+  previewBtn.onclick = async ()=>{
+    if(!currentFile){status.textContent='Upload an image first.'; return}
+    await renderToCanvas(false);
+    const dataUrl = canvas.toDataURL(format.value, Number(quality.value));
+    const w = window.open(); w.document.write(`<img src="${dataUrl}" style="max-width:100%">`);
+  }
+
+  downloadBtn.onclick = async ()=>{
+    if(!currentFile){status.textContent='Upload an image first.'; return}
+    await renderToCanvas(true);
+  }
+
+  async function renderToCanvas(triggerDownload){
+    const img = new Image(); img.crossOrigin='anonymous'; img.src = currentUrl;
+    await img.decode();
+    let tw = parseInt(widthInput.value) || null;
+    let th = parseInt(heightInput.value) || null;
+    if(keep.checked){
+      const aspect = img.naturalWidth / img.naturalHeight;
+      if(tw && !th) th = Math.round(tw / aspect);
+      if(th && !tw) tw = Math.round(th * aspect);
+      if(!tw && !th){ tw = img.naturalWidth; th = img.naturalHeight }
+    } else {
+      if(!tw) tw = img.naturalWidth; if(!th) th = img.naturalHeight;
+    }
+    canvas.width = tw; canvas.height = th;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,tw,th);
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality='high';
+    ctx.drawImage(img,0,0,tw,th);
+
+    const mime = format.value;
+    const qualityNum = Number(quality.value);
+
+    if(triggerDownload){
+      canvas.toBlob(blob=>{
+        const ext = mime==='image/png'? 'png' : mime==='image/webp' ? 'webp' : 'jpg';
+        const name = (currentFile.name.replace(/\.[^/.]+$/,'') || 'image') + '-edited.'+ext;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+        status.textContent = `Downloaded ${name} • ${humanFileSize(blob.size)}`;
+      }, mime, qualityNum);
+    } else {
+      status.textContent = 'Preview rendered.';
+    }
+  }
+
+  function humanFileSize(bytes){ if(bytes===0) return '0 B'; const k=1024; const sizes=['B','KB','MB','GB','TB']; const i=Math.floor(Math.log(bytes)/Math.log(k)); return (bytes/Math.pow(k,i)).toFixed(2)+' '+sizes[i]; }
+
+  // converter
+  conv.onclick = ()=>{
+    const val = parseFloat(amount.value);
+    if(isNaN(val)){convResult.textContent='Enter a number.'; return}
+    const fromUnit = from.value; const toUnit = to.value;
+    const b = unitToBytes(val, fromUnit);
+    const out = bytesToUnit(b, toUnit);
+    convResult.textContent = `${Number(out.toFixed(6))} ${toUnit}`;
+  }
+  function unitToBytes(v, u){ const n=Number(v); switch(u){case 'B': return n; case 'KB': return n*1024; case 'MB': return n*1024*1024; case 'GB': return n*1024*1024*1024; default: return n} }
+  function bytesToUnit(b,u){ switch(u){case 'B': return b; case 'KB': return b/1024; case 'MB': return b/(1024*1024); case 'GB': return b/(1024*1024*1024); default: return b} }
+
+  // keyboard accessibility for drop area
+  drop.addEventListener('keydown', (e)=>{ if(e.key==='Enter' || e.key===' ') fileInput.click(); });
+
+</script>
+</body>
+</html>
